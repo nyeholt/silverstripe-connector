@@ -83,7 +83,7 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 	 */
 	public function getContentImporter($target=null)
 	{
-		return null;
+		return new SilverStripeContentImporter();
 	}
 	
 	/**

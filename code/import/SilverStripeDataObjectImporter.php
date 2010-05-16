@@ -21,32 +21,28 @@ OF SUCH DAMAGE.
  
 */
  
-class SilverStripeFolderImporter implements ExternalContentTransformer
+class SilverStripeDataObjectImporter implements ExternalContentTransformer
 {
 	public function transform($item, $parentObject, $duplicateStrategy)
 	{
-		$folderChildren = $item->stageChildren();
-		$newFolder = new Folder();
-		$parentId = $parentObject ? $parentObject->ID : 0;
-		$existing = DataObject::get_one('File', '"ParentID" = \''.Convert::raw2sql($parentId).'\' and "Name" = \''.Convert::raw2sql($item->Title).'\'');
-		if ($existing && $duplicateStrategy == ExternalContentTransformer::DS_SKIP) {
-			// just return the existing children
-			return new TransformResult($existing, $folderChildren);
-		} else if ($existing && $duplicateStrategy == ExternalContentTransformer::DS_OVERWRITE) {
-			$newFolder = $existing;
+		$newPage = new Page();
+		$ignore = array(
+			'ClassName' => true,
+			'Status' => true,
+			'ID' => true,
+		);
+
+		foreach ($item->getRemoteProperties() as $field => $value) {
+			if (!isset($ignore[$field]) && $newPage->hasField($field)) {
+				$newPage->$field = $value;
+			}
 		}
-		$newFolder->Name = $item->Title;
-		$newFolder->Title = $item->Title;
-		$newFolder->MenuTitle = $item->Title;
-		$newFolder->ParentID = $parentObject->ID;
-		$newFolder->Sort = 0;
-		$newFolder->write();
-		if(!file_exists($newFolder->getFullPath())) {
-			mkdir($newFolder->getFullPath(),Filesystem::$folder_create_mask);
-		}
-		return new TransformResult($newFolder, $folderChildren);
+
+		$newPage->ParentID = $parentObject->ID;
+		$newPage->write();
+
+		return new TransformResult($newPage, $item->stageChildren());
 	}
 }
-
 
 ?>

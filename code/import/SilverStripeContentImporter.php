@@ -25,13 +25,13 @@ class SilverStripeContentImporter extends ExternalContentImporter
 {
 	public function __construct()
 	{
-		$this->contentTransforms['file'] = new FileSystemFileImporter();
-		$this->contentTransforms['folder'] = new FileSystemFolderImporter();
+		$this->contentTransforms['dataobject'] = new SilverStripeDataObjectImporter();
+//		$this->contentTransforms['folder'] = new FileSystemFolderImporter();
 	}
 
 	protected function getExternalType($item)
 	{
-		return $item->getType();
+		return 'dataobject';
 	}
 }
 
