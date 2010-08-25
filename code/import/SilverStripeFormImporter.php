@@ -21,7 +21,20 @@ OF SUCH DAMAGE.
  
 */
  
-// Enable access to everything
-SiteTree::$api_access = true;
-// and make sure we can search by the parentid of a node...
-DataObject::add_extension('DataObject', 'ParentSearchable');
+class SilverStripeFormImporter extends SilverStripeDataObjectImporter {
+
+	public function transform($item, $parentObject, $duplicateStrategy)	{
+		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+
+		// now lets load in all the actual EditableUserForm items
+		$client = $item->getSource()->getRemoteRepository();
+		$formFields = $client->getRelatedItems(array('ClassName' => get_class($new), 'ID' => $item->getSS_ID(), 'Relation' => 'Fields'));
+		$children = $item->stageChildren();
+		foreach ($formFields as $field) {
+			$fielditem = $item->getSource()->getObject($field);
+			$children->push($fielditem);
+		}
+
+		return new TransformResult($new, $children);
+	}
+}

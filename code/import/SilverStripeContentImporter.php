@@ -23,17 +23,30 @@ OF SUCH DAMAGE.
  
 class SilverStripeContentImporter extends ExternalContentImporter
 {
+	/**
+	 * Override this to specify additional import handlers
+	 *
+	 * @var array
+	 */
+	public static $importer_classes = array();
+	
 	public function __construct()
 	{
 		$this->contentTransforms['dataobject'] = new SilverStripeDataObjectImporter();
-//		$this->contentTransforms['folder'] = new FileSystemFolderImporter();
+		$this->contentTransforms['UserDefinedForm'] = new SilverStripeFormImporter();
+		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();
+		$this->contentTransforms['EditableOption'] = new SilverStripeEditableOptionImporter();
+
+		foreach (self::$importer_classes as $type => $cls) {
+			$this->contentTransforms[$type] = new $cls;
+		}
 	}
 
 	protected function getExternalType($item)
 	{
+		if ($item->ClassName && isset($this->contentTransforms[$item->ClassName])) {
+			return $item->ClassName;
+		}
 		return 'dataobject';
 	}
 }
-
-
-?>

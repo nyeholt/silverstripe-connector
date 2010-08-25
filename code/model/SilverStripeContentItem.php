@@ -25,12 +25,11 @@ OF SUCH DAMAGE.
 class SilverStripeContentItem extends ExternalContentItem
 {
 	protected $wrappedObject;
-	
-	public function __construct($source=null, $id=null, $content=null)
-	{
+
+	public function __construct($source=null, $id=null, $content=null) {
 		if ($content) {
 			$this->wrappedObject = $content;
-			parent::__construct($source, $content->SS_ID);
+			parent::__construct($source, $content->SS_ID . '-' . $content->ClassName);
 		} else {
 			if (is_bool($id)) {
 				$id = 0;
@@ -39,22 +38,19 @@ class SilverStripeContentItem extends ExternalContentItem
 		}
 	}
 
-	public function init($content = null)
-	{
+	public function init($content = null) {
 		$repo = $this->source->getRemoteRepository();
-		
 		if (!$this->wrappedObject && $this->externalId) {
 			try {
-				$this->wrappedObject = $repo->getNode(array('ClassName' => 'SiteTree', 'ID' => $this->externalId));
+				// TODO : Update this to work with non-sitetree stuff too... 
+				$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $this->getSS_ID()));
 			} catch (FailedRequestException $fre) {
 				singleton('ECUtils')->log("Failed loading node $this->externalId - ".$fre->getMessage(), SS_Log::ERR);
 			}
-			/* @var $content DataObject */
 		}
 		
 		if ($this->wrappedObject) {
 			$allFields = $this->wrappedObject->getAllFields();
-			
 			foreach ($allFields as $field => $value) {
 				if ($field == 'ID') {
 					continue;
@@ -64,14 +60,35 @@ class SilverStripeContentItem extends ExternalContentItem
 		}
 	}
 
-	public function stageChildren()
-	{
+	/**
+	 * Return the numeric part of the ID
+	 */
+	public function getSS_ID() {
+		$bits = explode('-', $this->externalId);
+		return $bits[0];
+	}
+
+	/**
+	 * Get the SilverStripe type of an object
+	 *
+	 * @return string
+	 */
+	public function getType() {
+		if ($this->wrappedObject) {
+			return get_class($this->wrappedObject);
+		}
+		// get it from the external ID
+		$bits = explode('-', $this->externalId);
+		return $bits[1];
+	}
+
+	public function stageChildren() {
 		$children = new DataObjectSet();
 		$repo = $this->source->getRemoteRepository();
 
 		try {
 			if ($repo->isConnected()) {
-				$kids = $repo->getChildren(array('ClassName'=>'SiteTree', 'ParentID' => $this->externalId));
+				$kids = $repo->getChildren(array('ClassName'=> ClassInfo::baseDataClass($this->getType()), 'ParentID' => $this->getSS_ID()));
 				// Even though it returns actual dataobjects, we need to wrap them for sanity and safety's sake
 				foreach ($kids as $childItem) {
 					$item = $this->source->getObject($childItem);
@@ -86,20 +103,12 @@ class SilverStripeContentItem extends ExternalContentItem
 		return $children;
 	}
 
-	public function numChildren()
-	{
+	public function numChildren() {
 		$children = $this->Children();
 		return $children->Count();
 	}
 
-	public function getType()
-	{
-		return get_class($this->wrappedObject);
-	}
 
-	public function streamContent()
-	{
+	public function streamContent()	{
 	}
 }
-
-?>

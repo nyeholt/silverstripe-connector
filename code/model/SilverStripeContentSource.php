@@ -126,19 +126,34 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 	 * 
 	 * @param mixed $object
 	 * 			Either an ID, or a prepulated wrapped object
+	 * @param string $type
+	 *			The SilverStripe object type
+	 * 
 	 * @return DataObject
 	 */
-	public function getObject($object)
-	{
+	public function getObject($object, $type='SiteTree') {
 		$id = $object;
 		if (is_object($object)) {
 			$id = $object->SS_ID;
+			$type = $object->ClassName ? $object->ClassName : $type;
+		}
+
+		if ($id && !strpos($id, '-')) {
+			$id = "$id-$type";
 		}
 
 		if (!isset($this->objectCache[$id])) {
 			// get the object from the repository
 			try {
-				$item = new SilverStripeContentItem($this, is_object($object) ? 0 : $id, is_object($object) ? $object : null);
+				if ($id) {
+					$item = new SilverStripeContentItem($this, is_object($object) ? 0 : $id, is_object($object) ? $object : null);
+				} else {
+					// create a dummy dataobject representing the site root
+					$object = new SiteTree();
+					$object->SS_ID = 0;
+					$item = new SilverStripeContentItem($this, 0, $object);
+				}
+
 				$this->objectCache[$id] = $item;
 			} catch (Zend_Http_Client_Adapter_Exception $e) {
 				$this->objectCache[$id] = null;
@@ -148,14 +163,12 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 		return $this->objectCache[$id];
 	}
 	
-	public function getRoot()
- 	{
+	public function getRoot() {
  		return $this->getObject($this->RootId);
  	}
 	
 
-	public function stageChildren($showAll = false)
-	{
+	public function stageChildren($showAll = false) {
 		
 		$root = $this->getRoot();
 		if ($root) {
@@ -164,7 +177,7 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 		return new DataObjectSet();
 	}
 	
-/**
+	/**
 	 * Helper function to encode a remote ID that is safe to use within 
 	 * silverstripe
 	 * 
@@ -173,8 +186,7 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 	 * @return string
 	 * 			A safely encoded ID
 	 */
-	public function encodeId($id)
-	{
+	public function encodeId($id) {
 		return $id; 
 	}
 
@@ -186,8 +198,7 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 	 * @return String
 	 * 			A decoded ID
 	 */
-	public function decodeId($id)
-	{
+	public function decodeId($id) {
 		return $id;
 	}
 }

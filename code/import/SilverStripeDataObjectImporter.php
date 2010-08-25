@@ -23,26 +23,41 @@ OF SUCH DAMAGE.
  
 class SilverStripeDataObjectImporter implements ExternalContentTransformer
 {
-	public function transform($item, $parentObject, $duplicateStrategy)
-	{
-		$newPage = new Page();
+	protected function importDataObject($item, $parentObject, $duplicateStrategy) {
 		$ignore = array(
 			'ClassName' => true,
 			'Status' => true,
 			'ID' => true,
 		);
 
+		$cls = 'Page';
+		if (strlen($item->ClassName) && ClassInfo::exists($item->ClassName)) {
+			$cls = $item->ClassName;
+
+		}
+
+		$obj = new $cls;
+
+		$obj->Version = 1;
+
 		foreach ($item->getRemoteProperties() as $field => $value) {
-			if (!isset($ignore[$field]) && $newPage->hasField($field)) {
-				$newPage->$field = $value;
+			if (!isset($ignore[$field]) && $obj->hasField($field)) {
+				$obj->$field = $value;
 			}
 		}
 
-		$newPage->ParentID = $parentObject->ID;
-		$newPage->write();
+		$obj->ParentID = $parentObject->ID;
+		if ($parentObject->SubsiteID) {
+			$obj->SubsiteID = $parentObject->SubsiteID;
+		}
 
-		return new TransformResult($newPage, $item->stageChildren());
+		$obj->write();
+
+		return $obj;
+	}
+
+	public function transform($item, $parentObject, $duplicateStrategy) {
+		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+		return new TransformResult($new, $item->stageChildren());
 	}
 }
-
-?>

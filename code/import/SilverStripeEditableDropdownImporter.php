@@ -21,19 +21,20 @@ OF SUCH DAMAGE.
  
 */
  
-class SiteTreeParentSearchable extends DataObjectDecorator
-{
-	 //$name => $spec) {
-		//	$filterClass = $spec['filter'];
-			
-	public function updateSearchableFields(&$fields)
-	{
-		$fields['ParentID'] = array(
-			'filter' => 'ExactMatchFilter',
-			'title' => 'Parent ID'
-		);
+class SilverStripeEditableDropdownImporter extends SilverStripeDataObjectImporter {
+	public function transform($item, $parentObject, $duplicateStrategy)	{
+		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+
+		// now lets load in all the actual EditableUserForm items
+		$client = $item->getSource()->getRemoteRepository();
+		$options = $client->getRelatedItems(array('ClassName' => 'EditableOption', 'ID' => $item->getSS_ID(), 'Relation' => 'Options'));
+		$children = new DataObjectSet();
+
+		foreach ($options as $option) {
+			$optionItem = $item->getSource()->getObject($option);
+			$children->push($optionItem);
+		}
+
+		return new TransformResult($new, $children);
 	}
 }
-
-
-?>

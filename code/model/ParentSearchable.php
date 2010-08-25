@@ -21,7 +21,18 @@ OF SUCH DAMAGE.
  
 */
  
-// Enable access to everything
-SiteTree::$api_access = true;
-// and make sure we can search by the parentid of a node...
-DataObject::add_extension('DataObject', 'ParentSearchable');
+class ParentSearchable extends DataObjectDecorator {
+	 //$name => $spec) {
+		//	$filterClass = $spec['filter'];
+			
+	public function updateSearchableFields(&$fields)
+	{
+		$fields['ParentID'] = array(
+			'filter' => 'ExactMatchFilter',
+			'title' => 'Parent ID'
+		);
+	}
+}
+
+
+?>

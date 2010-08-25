@@ -67,13 +67,17 @@ class SilverStripeClient
 		'getNode' => array(
 			'url' => '/api/v1/{ClassName}/{ID}',
 			'return' => 'dataobject'
-			),
+		),
 		'getChildren' => array(
 			'url' => '/api/v1/{ClassName}',
 			'params' => array('ParentID'),
 			'return' => 'dataobjectset'
-			),
-		);
+		),
+		'getRelatedItems' => array(
+			'url' => '/api/v1/{ClassName}/{ID}/{Relation}',
+			'return' => 'dataobjectset'
+		)
+	);
 }
 
 class RemoteDataObjectHandler
@@ -145,4 +149,3 @@ class DataObjectReturnHandler extends RemoteDataObjectHandler implements ReturnH
 		return $obj;
 	}
 }
-?>

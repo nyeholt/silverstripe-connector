@@ -20,8 +20,14 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OF SUCH DAMAGE.
  
 */
- 
-// Enable access to everything
-SiteTree::$api_access = true;
-// and make sure we can search by the parentid of a node...
-DataObject::add_extension('DataObject', 'ParentSearchable');
+
+/**
+ * We need a custom importer to make sure that we don't import any children
+ */
+class SilverStripeEditableOptionImporter extends SilverStripeDataObjectImporter {
+	public function transform($item, $parentObject, $duplicateStrategy) {
+		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+		return new TransformResult($new, new DataObjectSet());
+	}
+	
+}
