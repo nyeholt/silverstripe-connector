@@ -58,6 +58,7 @@ class SilverStripeContentItem extends ExternalContentItem
 				$this->$field = $value;
 			}
 		}
+
 	}
 
 	/**

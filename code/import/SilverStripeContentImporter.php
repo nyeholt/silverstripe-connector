@@ -30,8 +30,7 @@ class SilverStripeContentImporter extends ExternalContentImporter
 	 */
 	public static $importer_classes = array();
 	
-	public function __construct()
-	{
+	public function __construct() {
 		$this->contentTransforms['dataobject'] = new SilverStripeDataObjectImporter();
 		$this->contentTransforms['UserDefinedForm'] = new SilverStripeFormImporter();
 		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();

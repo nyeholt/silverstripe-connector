@@ -21,22 +21,40 @@ OF SUCH DAMAGE.
  
 */
  
-class SilverStripeEditableDropdownImporter extends SilverStripeDataObjectImporter {
-	public function transform($item, $parentObject, $duplicateStrategy)	{
-		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+class QueuedSilverStripeContentImporter extends QueuedExternalContentImporter
+{
+	/**
+	 * Override this to specify additional import handlers
+	 *
+	 * @var array
+	 */
+	public static $importer_classes = array();
+	
+	public function init() {
+		$this->contentTransforms['DataObject'] = new SilverStripeDataObjectImporter();
+		$this->contentTransforms['UserDefinedForm'] = new SilverStripeFormImporter();
+		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();
+		$this->contentTransforms['EditableOption'] = new SilverStripeEditableOptionImporter();
 
-		// now lets load in all the actual EditableUserForm items
-		$client = $item->getSource()->getRemoteRepository();
-		$options = $client->getRelatedItems(array('ClassName' => 'EditableDropdown', 'ID' => $item->getSS_ID(), 'Relation' => 'Options'));
-		$children = new DataObjectSet();
+		foreach (self::$importer_classes as $type => $cls) {
+			$this->contentTransforms[$type] = new $cls;
+		}
+	}
 
-		foreach ($options as $option) {
-			$optionItem = $item->getSource()->getObject($option);
-			if ($optionItem->ParenID == $item->getSS_ID()) {
-				$children->push($optionItem);
+	protected function getExternalType($item) {
+
+		if ($item->ClassName) {
+			$name = null;
+			$hierarchy = ClassInfo::ancestry($item->ClassName);
+			foreach ($hierarchy as $ancestor => $val) {
+				if (isset($this->contentTransforms[$ancestor])) {
+					$name = $ancestor;
+				}
+			}
+			if ($name) {
+				return $name;
 			}
 		}
-
-		return new TransformResult($new, $children);
+		return 'DataObject';
 	}
 }
