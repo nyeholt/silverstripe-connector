@@ -34,5 +34,3 @@ class ParentSearchable extends DataObjectDecorator {
 	}
 }
 
-
-?>
