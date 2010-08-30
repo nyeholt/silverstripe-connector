@@ -32,7 +32,7 @@ class SilverStripeEditableDropdownImporter extends SilverStripeDataObjectImporte
 
 		foreach ($options as $option) {
 			$optionItem = $item->getSource()->getObject($option);
-			if ($optionItem->ParenID == $item->getSS_ID()) {
+			if ($optionItem->ParentID == $item->getSS_ID()) {
 				$children->push($optionItem);
 			}
 		}
