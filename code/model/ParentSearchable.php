@@ -22,15 +22,15 @@ OF SUCH DAMAGE.
 */
  
 class ParentSearchable extends DataObjectDecorator {
-	 //$name => $spec) {
-		//	$filterClass = $spec['filter'];
 			
 	public function updateSearchableFields(&$fields)
 	{
-		$fields['ParentID'] = array(
-			'filter' => 'ExactMatchFilter',
-			'title' => 'Parent ID'
-		);
+		if ($this->owner->hasDatabaseField('ParentID')) {
+			$fields['ParentID'] = array(
+				'filter' => 'ExactMatchFilter',
+				'title' => 'Parent ID'
+			);
+		}
 	}
 }
 
