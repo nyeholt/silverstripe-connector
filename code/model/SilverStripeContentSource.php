@@ -47,7 +47,7 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 
 		$fields->addFieldToTab('Root.Main', new TextField('ApiUrl', _t('ExternalContentSource.API_URL', 'API Url')));
 		$fields->addFieldToTab('Root.Main', new TextField('Username', _t('ExternalContentSource.USER', 'Username')));
-		$fields->addFieldToTab('Root.Main', new TextField('Password', _t('ExternalContentSource.PASS', 'Password')));
+		$fields->addFieldToTab('Root.Main', new PasswordField('Password', _t('ExternalContentSource.PASS', 'Password')));
 		$fields->addFieldToTab('Root.Main', new TextField('RootId', _t('ExternalContentSource.ROOT_ID', 'Root Page ID')));
 		return $fields;
 	}

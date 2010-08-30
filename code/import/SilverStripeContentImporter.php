@@ -29,9 +29,9 @@ class SilverStripeContentImporter extends ExternalContentImporter
 	 * @var array
 	 */
 	public static $importer_classes = array();
-	
-	public function __construct() {
-		$this->contentTransforms['dataobject'] = new SilverStripeDataObjectImporter();
+
+	public function init() {
+		$this->contentTransforms['DataObject'] = new SilverStripeDataObjectImporter();
 		$this->contentTransforms['UserDefinedForm'] = new SilverStripeFormImporter();
 		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();
 		$this->contentTransforms['EditableOption'] = new SilverStripeEditableOptionImporter();
@@ -41,11 +41,20 @@ class SilverStripeContentImporter extends ExternalContentImporter
 		}
 	}
 
-	protected function getExternalType($item)
-	{
-		if ($item->ClassName && isset($this->contentTransforms[$item->ClassName])) {
-			return $item->ClassName;
+	protected function getExternalType($item) {
+
+		if ($item->ClassName) {
+			$name = null;
+			$hierarchy = ClassInfo::ancestry($item->ClassName);
+			foreach ($hierarchy as $ancestor => $val) {
+				if (isset($this->contentTransforms[$ancestor])) {
+					$name = $ancestor;
+				}
+			}
+			if ($name) {
+				return $name;
+			}
 		}
-		return 'dataobject';
+		return 'DataObject';
 	}
 }
