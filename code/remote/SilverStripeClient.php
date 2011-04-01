@@ -60,7 +60,10 @@ class SilverStripeClient
 	public function call($method, $args)
 	{
 		$this->callCount++; 
-		return $this->api->callMethod($method, $args);
+		try {
+			return $this->api->callMethod($method, $args);
+		} catch (Zend_Http_Client_Exception $zce) {
+		}
 	}
 
 	public static $methods = array(
@@ -120,6 +123,7 @@ class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements Retu
 	public function handleReturn($raw)
 	{
 		$xml = new DomDocument();
+		$raw = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $raw);
 		$xml->loadXML($raw);
 		$objects = new DataObjectSet();
 		// lets get all the items beneath the root item
