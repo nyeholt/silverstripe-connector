@@ -1,7 +1,12 @@
-2011-05-06 v0.1.1
+2011-05-06 v0.1.2
 -----------------
 
 * Rename API Url setting to Remote System URL to remove some confusion
+
+2011-04-01 v0.1.1
+-----------------
+
+* Completely copy one site to another REALTIME
 
 2011-02-03 v0.1.0
 -----------------
