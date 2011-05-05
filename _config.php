@@ -21,7 +21,12 @@ OF SUCH DAMAGE.
  
 */
  
+
+// The following two settings need to be enabled on the REMOTE SilverStripe installation
+// to enable the connector to get in. 
+
 // Enable access to everything
-SiteTree::$api_access = true;
+//SiteTree::$api_access = true;
+//
 // and make sure we can search by the parentid of a node...
-DataObject::add_extension('DataObject', 'ParentSearchable');
+//DataObject::add_extension('DataObject', 'ParentSearchable');
