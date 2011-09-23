@@ -1,29 +1,11 @@
 <?php
+
 /**
+ * @author Marcus Nyeholt <marcus@silverstripe.com.au>
+ * @license BSD License
+ */
+class SilverStripeContentItem extends ExternalContentItem {
 
-Copyright (c) 2009, SilverStripe Australia PTY LTD - www.silverstripe.com.au
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the 
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of SilverStripe nor the names of its contributors may be used to endorse or promote products derived from this software 
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
-OF SUCH DAMAGE.
- 
-*/
- 
-
-class SilverStripeContentItem extends ExternalContentItem
-{
 	protected $wrappedObject;
 
 	public function __construct($source=null, $id=null, $content=null) {
@@ -45,10 +27,10 @@ class SilverStripeContentItem extends ExternalContentItem
 				// TODO : Update this to work with non-sitetree stuff too... 
 				$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $this->getSS_ID()));
 			} catch (FailedRequestException $fre) {
-				singleton('ECUtils')->log("Failed loading node $this->externalId - ".$fre->getMessage(), SS_Log::ERR);
+				singleton('ECUtils')->log("Failed loading node $this->externalId - " . $fre->getMessage(), SS_Log::ERR);
 			}
 		}
-		
+
 		if ($this->wrappedObject) {
 			$allFields = $this->wrappedObject->getAllFields();
 			foreach ($allFields as $field => $value) {
@@ -58,7 +40,6 @@ class SilverStripeContentItem extends ExternalContentItem
 				$this->$field = $value;
 			}
 		}
-
 	}
 
 	/**
@@ -89,7 +70,7 @@ class SilverStripeContentItem extends ExternalContentItem
 
 		try {
 			if ($repo->isConnected()) {
-				$kids = $repo->getChildren(array('ClassName'=> ClassInfo::baseDataClass($this->getType()), 'ParentID' => $this->getSS_ID()));
+				$kids = $repo->getChildren(array('ClassName' => ClassInfo::baseDataClass($this->getType()), 'ParentID' => $this->getSS_ID()));
 				// Even though it returns actual dataobjects, we need to wrap them for sanity and safety's sake
 				foreach ($kids as $childItem) {
 					$item = $this->source->getObject($childItem);
@@ -97,7 +78,7 @@ class SilverStripeContentItem extends ExternalContentItem
 				}
 			}
 		} catch (FailedRequestException $fre) {
-			error_log("Failed to retrieve children: ".$fre->getMessage());
+			error_log("Failed to retrieve children: " . $fre->getMessage());
 			return $children;
 		}
 
@@ -109,7 +90,51 @@ class SilverStripeContentItem extends ExternalContentItem
 		return $children->Count();
 	}
 
+	public function streamContent($toFile = null) {
+		$contentType = HTTP::getMimeType($this->Filename);
 
-	public function streamContent()	{
+		// now get the file
+		$contentUrl = $this->getSource()->ApiUrl . '/' . $this->Filename;
+		$session = curl_init($contentUrl);
+
+		if (!strlen($toFile)) {
+			// QUICK HACK
+			$n = $this->name;
+			$filename = rawurlencode($n);
+
+			header("Content-Disposition: atachment; filename=$filename");
+			header("Content-Type: $contentType");
+			// header("Content-Length: ".filesize("$path/$filename"));
+			header("Pragma: no-cache");
+			header("Expires: 0");
+			curl_exec($session);
+		} else {
+			// get the file and store it into a local item
+			curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+			$response = curl_exec($session);
+			$fp = fopen($toFile, 'w');
+			if (!$fp) {
+				throw new Exception("Could not write file to $toFile");
+			}
+			fwrite($fp, $response);
+			fclose($fp);
+		}
+
+		curl_close($session);
 	}
+
+	public function allowedImportTargets() {
+		$targets = array(
+			'sitetree' => true,
+		);
+
+		if ($this->wrappedObject instanceof File) {
+			$targets = array(
+				'file' => true,
+			);
+		}
+		
+		return $targets;
+	}
+
 }
