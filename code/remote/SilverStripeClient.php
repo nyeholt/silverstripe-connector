@@ -102,6 +102,9 @@ class RemoteDataObjectHandler
 			$object = new SiteTree();
 		}
 		
+		// track the name property and set it LAST again to handle special cases like file
+		// that overwrite other properties when $name is set
+		$name = null;
 		foreach ($node->childNodes as $property) {
 			if ($property instanceof DOMText) {
 				continue;
@@ -110,8 +113,14 @@ class RemoteDataObjectHandler
 			if (isset($this->remap[$pname])) {
 				$pname = $this->remap[$pname];
 			}
-			
+			if ($pname == 'Filename') {
+				$name = $property->nodeValue;
+			}
 			$object->$pname = $property->nodeValue;
+		}
+		
+		if (!is_null($name)) {
+			$object->Filename = $name;
 		}
 
 		return $object;

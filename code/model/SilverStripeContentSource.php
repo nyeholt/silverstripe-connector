@@ -146,9 +146,10 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 		if ($root) {
 			$children = $root->stageChildren();
 
-			$fakeFiles = new SilverStripeContentItem();
+			$fakeId = '0-File';
+			$fakeFiles = new SilverStripeContentItem($this, $fakeId);
 			$fakeFiles->Title = 'Files';
-			$fakeFiles->ID = $this->ID . '|0-File';
+			$fakeFiles->ID = $this->ID . '|' . $fakeId;
 			$children->push($fakeFiles);
 			return $children;
 		}

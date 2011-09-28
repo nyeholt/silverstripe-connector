@@ -24,8 +24,12 @@ class SilverStripeContentItem extends ExternalContentItem {
 		$repo = $this->source->getRemoteRepository();
 		if (!$this->wrappedObject && $this->externalId) {
 			try {
-				// TODO : Update this to work with non-sitetree stuff too... 
-				$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $this->getSS_ID()));
+				$ssId = $this->getSS_ID();
+				if ($ssId) {
+					// TODO : Update this to work with non-sitetree stuff too... 
+					$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $ssId));
+				}
+				
 			} catch (FailedRequestException $fre) {
 				singleton('ECUtils')->log("Failed loading node $this->externalId - " . $fre->getMessage(), SS_Log::ERR);
 			}
