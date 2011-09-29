@@ -93,7 +93,38 @@ class SilverStripeContentItem extends ExternalContentItem {
 		$children = $this->Children();
 		return $children->Count();
 	}
+	
+	public function editableFieldMapping() {
+		return array(
+			'Title'			=> 'TextField',
+			'MenuTitle'		=> 'TextField',
+			'Content'		=> 'TextareaField',
+		);
+	}
+	
+	/**
+	 * Write back to the content source
+	 */
+	public function remoteWrite() {
+		foreach ($this->remoteProperties as $prop => $val) {
+			$this->wrappedObject->$prop = $val;
+		}
+		
+		$this->wrappedObject->ID = $this->getSS_ID();
+		
+		$xmlFormatter = new XMLDataFormatter;
+		$xmlFormatter->relationDepth = 0;
+		$xml = $xmlFormatter->convertDataObjectWithoutHeader($this->wrappedObject);
 
+		$params = array('raw_body' => $xml, 'ClassName' => $this->getType(), 'ID' => $this->getSS_ID());
+		$this->getSource()->getRemoteRepository()->saveObject($params);
+	}
+
+	/**
+	 * Stream to browser or file
+	 *
+	 * @param string $toFile 
+	 */
 	public function streamContent($toFile = null) {
 		$contentType = HTTP::getMimeType($this->Filename);
 
