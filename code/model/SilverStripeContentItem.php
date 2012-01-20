@@ -22,14 +22,10 @@ class SilverStripeContentItem extends ExternalContentItem {
 
 	public function init($content = null) {
 		$repo = $this->source->getRemoteRepository();
-		if (!$this->wrappedObject && $this->externalId) {
+		if (!$this->wrappedObject && $this->externalId && $id = $this->getSS_ID()) {
 			try {
-				$ssId = $this->getSS_ID();
-				if ($ssId) {
-					// TODO : Update this to work with non-sitetree stuff too... 
-					$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $ssId));
-				}
-				
+				// TODO : Update this to work with non-sitetree stuff too... 
+				$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $id));
 			} catch (FailedRequestException $fre) {
 				singleton('ECUtils')->log("Failed loading node $this->externalId - " . $fre->getMessage(), SS_Log::ERR);
 			}
@@ -75,14 +71,18 @@ class SilverStripeContentItem extends ExternalContentItem {
 		try {
 			if ($repo->isConnected()) {
 				$kids = $repo->getChildren(array('ClassName' => ClassInfo::baseDataClass($this->getType()), 'ParentID' => $this->getSS_ID()));
+				if (!$kids) {
+					throw new Exception("No kids and null object returned for children of " . $this->getSS_ID());
+				}
 				// Even though it returns actual dataobjects, we need to wrap them for sanity and safety's sake
 				foreach ($kids as $childItem) {
 					$item = $this->source->getObject($childItem);
 					$children->push($item);
 				}
 			}
-		} catch (FailedRequestException $fre) {
-			error_log("Failed to retrieve children: " . $fre->getMessage());
+		} catch (Exception $fre) {
+			singleton('SiteUtils')->log("Failed to retrieve children: " . $fre->getMessage(), SS_Log::WARN);
+			SS_Log::log($fre, SS_Log::WARN);
 			return $children;
 		}
 
@@ -90,6 +90,9 @@ class SilverStripeContentItem extends ExternalContentItem {
 	}
 
 	public function numChildren() {
+		if ($this->wrappedObject instanceof File && !($this->wrappedObject instanceof Folder)) {
+			return 0;
+		}
 		$children = $this->Children();
 		return $children->Count();
 	}

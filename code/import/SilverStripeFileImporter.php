@@ -23,7 +23,6 @@ class SilverStripeFileImporter implements ExternalContentTransformer {
 		} else if ($existing && $duplicateStrategy == ExternalContentTransformer::DS_OVERWRITE) {
 			$newFile = $existing;
 		}
-
 		$newFile->Name = $item->Name;
 		$newFile->Title = $item->Title;
 		$newFile->ParentID = $parentId;
