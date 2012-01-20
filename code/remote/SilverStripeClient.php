@@ -1,30 +1,12 @@
 <?php
+
 /**
+ * 
+ * @license BSD License http://silverstripe.org/bsd-license
+ */
+class SilverStripeClient {
 
-Copyright (c) 2009, SilverStripe Australia PTY LTD - www.silverstripe.com.au
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
-documentation and/or other materials provided with the distribution.
-* Neither the name of SilverStripe nor the names of its contributors may be used to endorse or promote products derived from this software
-without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
-OF SUCH DAMAGE.
-
-*/
-
-class SilverStripeClient
-{
-	public function __construct()
-	{
+	public function __construct() {
 		$this->api = new WebApiClient(null, self::$methods);
 		$this->api->setUseCookies(true);
 		$this->api->setMaintainSession(true);
@@ -33,65 +15,66 @@ class SilverStripeClient
 		$this->api->addReturnHandler('dataobject', new DataObjectReturnHandler());
 	}
 
-	public function connect($url, $username, $password)
-	{
+	public function connect($url, $username, $password) {
 		$this->api->setBaseUrl($url);
 		$this->api->setAuthInfo($username, $password);
 	}
 
-	public function isConnected()
-	{
+	public function isConnected() {
 		return $this->api->getBaseUrl() != null;
 	}
 
-	public function disconnect()
-	{
+	public function disconnect() {
 		$this->api->setBaseUrl(null);
 	}
 
-	public function __call($method, $args)
-	{
+	public function __call($method, $args) {
 		return $this->call($method, isset($args[0]) ? $args[0] : array());
 	}
-	
-	private $callCount = 0;
-	
 
-	public function call($method, $args)
-	{
-		$this->callCount++; 
+	private $callCount = 0;
+
+	public function call($method, $args) {
+		$this->callCount++;
 		try {
 			return $this->api->callMethod($method, $args);
 		} catch (Zend_Http_Client_Exception $zce) {
+			
 		}
 	}
 
 	public static $methods = array(
-		'getNode' => array(
-			'url' => '/api/v1/{ClassName}/{ID}',
-			'return' => 'dataobject'
+		'getNode'			=> array(
+			'url'				=> '/api/v1/{ClassName}/{ID}',
+			'return'			=> 'dataobject'
 		),
-		'getChildren' => array(
-			'url' => '/api/v1/{ClassName}',
-			'params' => array('ParentID'),
-			'return' => 'dataobjectset'
+		'getChildren'		=> array(
+			'url'				=> '/api/v1/{ClassName}',
+			'params'			=> array('ParentID'),
+			'return'			=> 'dataobjectset'
 		),
-		'getRelatedItems' => array(
-			'url' => '/api/v1/{ClassName}/{ID}/{Relation}',
-			'return' => 'dataobjectset'
+		'getRelatedItems'	=> array(
+			'url'				=> '/api/v1/{ClassName}/{ID}/{Relation}',
+			'return'			=> 'dataobjectset'
+		),
+		'saveObject'		=> array(
+			'url'				=> '/api/v1/{ClassName}/{ID}',
+			'get'				=> array('XDEBUG_SESSION_START' => 'netbeans-xdebug'),
+			'method'			=> 'PUT',
+			'raw'				=> true
 		)
 	);
+
 }
 
-class RemoteDataObjectHandler
-{
+class RemoteDataObjectHandler {
+
 	private $baseClass = 'SiteTree';
 	private $remap = array(
 		'ID' => 'SS_ID',
 	);
 
-	protected function getRemoteObject($node)
-	{
+	protected function getRemoteObject($node) {
 		$clazz = $node->nodeName;
 		$object = null;
 		// do we have this data object type?
@@ -101,7 +84,7 @@ class RemoteDataObjectHandler
 		} else {
 			$object = new SiteTree();
 		}
-		
+
 		// track the name property and set it LAST again to handle special cases like file
 		// that overwrite other properties when $name is set
 		$name = null;
@@ -118,19 +101,19 @@ class RemoteDataObjectHandler
 			}
 			$object->$pname = $property->nodeValue;
 		}
-		
+
 		if (!is_null($name)) {
 			$object->Filename = $name;
 		}
 
 		return $object;
 	}
+
 }
 
-class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements ReturnHandler
-{
-	public function handleReturn($raw)
-	{
+class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements ReturnHandler {
+
+	public function handleReturn($raw) {
 		$xml = new DomDocument();
 		$raw = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $raw);
 		$xml->loadXML($raw);
@@ -149,16 +132,16 @@ class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements Retu
 		}
 		return $objects;
 	}
+
 }
 
+class DataObjectReturnHandler extends RemoteDataObjectHandler implements ReturnHandler {
 
-class DataObjectReturnHandler extends RemoteDataObjectHandler implements ReturnHandler
-{
-	public function handleReturn($raw)
-	{
+	public function handleReturn($raw) {
 		$xml = new DomDocument;
 		$xml->loadXML($raw);
 		$obj = $this->getRemoteObject($xml->childNodes->item(0));
 		return $obj;
 	}
+
 }
