@@ -1,3 +1,8 @@
+2012-01-27 v0.3.1
+-----------------
+
+* Store original classname for use in importing
+
 2011-09-29 v0.3.0
 -----------------
 

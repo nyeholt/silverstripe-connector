@@ -23,7 +23,12 @@ class QueuedSilverStripeContentImporter extends QueuedExternalContentImporter
 	}
 
 	protected function getExternalType($item) {
-		if ($item->ClassName) {
+		if ($item->SourceClassName) {
+			if (isset($this->contentTransforms[$item->SourceClassName])) {
+				// we're expecting the type
+				return $item->SourceClassName;
+			}
+
 			$name = null;
 			$hierarchy = ClassInfo::ancestry($item->ClassName);
 			foreach ($hierarchy as $ancestor => $val) {
@@ -35,6 +40,7 @@ class QueuedSilverStripeContentImporter extends QueuedExternalContentImporter
 				return $name;
 			}
 		}
+		
 		return 'DataObject';
 	}
 }

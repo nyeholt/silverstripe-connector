@@ -101,7 +101,9 @@ class RemoteDataObjectHandler {
 			}
 			$object->$pname = $property->nodeValue;
 		}
-
+		
+		$object->SourceClassName = $clazz;
+		
 		if (!is_null($name)) {
 			$object->Filename = $name;
 		}
