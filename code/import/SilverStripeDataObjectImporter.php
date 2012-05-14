@@ -33,7 +33,10 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 		$cls = 'Page';
 		if (strlen($item->ClassName) && ClassInfo::exists($item->ClassName)) {
 			$cls = $item->ClassName;
-
+		}
+		
+		if ($cls == 'SiteTree') {
+			$cls = 'Page';
 		}
 
 		$obj = new $cls;

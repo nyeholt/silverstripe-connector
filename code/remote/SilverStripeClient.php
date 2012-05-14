@@ -82,7 +82,7 @@ class RemoteDataObjectHandler {
 			// we'll create one
 			$object = new $clazz;
 		} else {
-			$object = new SiteTree();
+			$object = new Page();
 		}
 
 		// track the name property and set it LAST again to handle special cases like file
@@ -117,7 +117,8 @@ class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements Retu
 
 	public function handleReturn($raw) {
 		$xml = new DomDocument();
-		$raw = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $raw);
+		// cleaning up some junk
+		$raw = str_replace(array('<?xml version="1.0" encoding="UTF-8"?>', '', '', ''), '', $raw);
 		$xml->loadXML($raw);
 		$objects = new DataObjectSet();
 		// lets get all the items beneath the root item
@@ -141,6 +142,7 @@ class DataObjectReturnHandler extends RemoteDataObjectHandler implements ReturnH
 
 	public function handleReturn($raw) {
 		$xml = new DomDocument;
+		$raw = str_replace(array('', '', ''), '', $raw);
 		$xml->loadXML($raw);
 		$obj = $this->getRemoteObject($xml->childNodes->item(0));
 		return $obj;
