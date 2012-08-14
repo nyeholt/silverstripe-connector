@@ -29,6 +29,10 @@ class SilverStripeContentImporter extends ExternalContentImporter
 	 * @var array
 	 */
 	public static $importer_classes = array();
+	
+	public function __construct() {
+		$this->init();
+	}
 
 	public function init() {
 		$this->contentTransforms['DataObject'] = new SilverStripeDataObjectImporter();
