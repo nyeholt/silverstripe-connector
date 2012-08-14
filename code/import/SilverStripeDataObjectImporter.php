@@ -30,6 +30,7 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 			'ID' => true,
 		);
 
+		
 		$cls = 'Page';
 		if (strlen($item->ClassName) && ClassInfo::exists($item->ClassName)) {
 			$cls = $item->ClassName;
@@ -42,6 +43,21 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 		$obj = new $cls;
 
 		$obj->Version = 1;
+		
+		if ($parentObject && $parentObject->hasExtension('Hierarchy')) {
+			$filter = '"Title" = \'' . Convert::raw2sql($item->Title) . '\' AND "ParentID" = ' . ((int) $parentObject->ID);
+			
+			$existing = DataObject::get_one($cls, $filter);
+			if ($existing && $existing->exists()) {
+				if ($duplicateStrategy == ExternalContentTransformer::DS_OVERWRITE) {
+					$obj = $existing;
+					$obj->ClassName = $cls;
+				} else if ($duplicateStrategy == ExternalContentTransformer::DS_SKIP) {
+					return $existing;
+				}
+			}
+		}
+		
 
 		foreach ($item->getRemoteProperties() as $field => $value) {
 			if (!isset($ignore[$field]) && $obj->hasField($field)) {
@@ -52,6 +68,10 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 		$obj->ParentID = $parentObject->ID;
 		if ($parentObject->SubsiteID) {
 			$obj->SubsiteID = $parentObject->SubsiteID;
+		}
+		
+		if ($obj->hasExtension('Versioned') && $parentObject->Status == 'Published') {
+			$obj->doPublish();
 		}
 
 		$obj->write();
