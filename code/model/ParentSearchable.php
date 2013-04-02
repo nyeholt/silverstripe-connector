@@ -21,7 +21,7 @@ OF SUCH DAMAGE.
  
 */
  
-class ParentSearchable extends DataObjectDecorator {
+class ParentSearchable extends DataExtension {
 			
 	public function updateSearchableFields(&$fields)
 	{

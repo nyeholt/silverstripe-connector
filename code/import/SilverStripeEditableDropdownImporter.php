@@ -28,7 +28,7 @@ class SilverStripeEditableDropdownImporter extends SilverStripeDataObjectImporte
 		// now lets load in all the actual EditableUserForm items
 		$client = $item->getSource()->getRemoteRepository();
 		$options = $client->getRelatedItems(array('ClassName' => 'EditableDropdown', 'ID' => $item->getSS_ID(), 'Relation' => 'Options'));
-		$children = new DataObjectSet();
+		$children = new ArrayList();
 
 		foreach ($options as $option) {
 			$optionItem = $item->getSource()->getObject($option);

@@ -11,7 +11,7 @@ class SilverStripeClient {
 		$this->api->setUseCookies(true);
 		$this->api->setMaintainSession(true);
 
-		$this->api->addReturnHandler('dataobjectset', new DataObjectSetReturnHandler());
+		$this->api->addReturnHandler('arraylist', new DataObjectSetReturnHandler());
 		$this->api->addReturnHandler('dataobject', new DataObjectReturnHandler());
 	}
 
@@ -51,15 +51,14 @@ class SilverStripeClient {
 		'getChildren'		=> array(
 			'url'				=> '/api/v1/{ClassName}',
 			'params'			=> array('ParentID'),
-			'return'			=> 'dataobjectset'
+			'return'			=> 'arraylist'
 		),
 		'getRelatedItems'	=> array(
 			'url'				=> '/api/v1/{ClassName}/{ID}/{Relation}',
-			'return'			=> 'dataobjectset'
+			'return'			=> 'arraylist'
 		),
 		'saveObject'		=> array(
 			'url'				=> '/api/v1/{ClassName}/{ID}',
-			'get'				=> array('XDEBUG_SESSION_START' => 'netbeans-xdebug'),
 			'method'			=> 'PUT',
 			'raw'				=> true
 		)
@@ -123,7 +122,7 @@ class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements Retu
 		$objects = new DataObjectSet();
 		// lets get all the items beneath the root item
 		foreach ($xml->childNodes as $node) {
-			if ($node->nodeName == 'DataObjectSet') {
+			if ($node->nodeName == 'ArrayList') {
 				foreach ($node->childNodes as $childNode) {
 					if ($childNode instanceof DOMText) {
 						continue;

@@ -153,7 +153,7 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 			$children->push($fakeFiles);
 			return $children;
 		}
-		return new DataObjectSet();
+		return new ArrayList();
 	}
 
 	/**

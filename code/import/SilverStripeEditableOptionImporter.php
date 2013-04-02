@@ -27,7 +27,7 @@ OF SUCH DAMAGE.
 class SilverStripeEditableOptionImporter extends SilverStripeDataObjectImporter {
 	public function transform($item, $parentObject, $duplicateStrategy) {
 		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
-		return new TransformResult($new, new DataObjectSet());
+		return new TransformResult($new, new ArrayList());
 	}
 	
 }

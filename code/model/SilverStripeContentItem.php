@@ -64,12 +64,16 @@ class SilverStripeContentItem extends ExternalContentItem {
 		return $bits[1];
 	}
 
-	public function stageChildren() {
-		$children = new DataObjectSet();
+	public function stageChildren($showAll = false) {
+		$children = new ArrayList();
 		$repo = $this->source->getRemoteRepository();
 
 		try {
 			if ($repo->isConnected()) {
+				$ssId = $this->getSS_ID();
+				if (!$ssId) {
+					$ssId = '0';
+				}
 				$kids = $repo->getChildren(array('ClassName' => ClassInfo::baseDataClass($this->getType()), 'ParentID' => $this->getSS_ID()));
 				if (!$kids) {
 					throw new Exception("No kids and null object returned for children of " . $this->getSS_ID());
@@ -108,7 +112,7 @@ class SilverStripeContentItem extends ExternalContentItem {
 	/**
 	 * Write back to the content source
 	 */
-	public function remoteWrite() {
+	public function remoteWrite($member = null) {
 		foreach ($this->remoteProperties as $prop => $val) {
 			$this->wrappedObject->$prop = $val;
 		}
