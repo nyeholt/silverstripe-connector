@@ -119,7 +119,7 @@ class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements Retu
 		// cleaning up some junk
 		$raw = str_replace(array('<?xml version="1.0" encoding="UTF-8"?>', '', '', ''), '', $raw);
 		$xml->loadXML($raw);
-		$objects = new DataObjectSet();
+		$objects = new ArrayList();
 		// lets get all the items beneath the root item
 		foreach ($xml->childNodes as $node) {
 			if ($node->nodeName == 'ArrayList') {

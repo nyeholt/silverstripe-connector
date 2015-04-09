@@ -10,7 +10,8 @@
 ## Getting started
 
 * Install the module locally
-* Install the module on the remote SilverStripe system. This is required so that the connector
+* Install the module AND restful server (https://github.com/silverstripe/silverstripe-restfulserver)
+  on the remote SilverStripe system. This is required so that the connector
   can get in to the remote system - note that there are two config settings that need
   to be added to the remote system config also
   * SiteTree::$api_access = true;

@@ -32,7 +32,7 @@ class SilverStripeContentItem extends ExternalContentItem {
 		}
 
 		if ($this->wrappedObject) {
-			$allFields = $this->wrappedObject->getAllFields();
+			$allFields = $this->wrappedObject->toMap();
 			foreach ($allFields as $field => $value) {
 				if ($field == 'ID') {
 					continue;
