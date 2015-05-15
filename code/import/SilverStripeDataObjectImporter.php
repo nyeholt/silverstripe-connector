@@ -70,11 +70,11 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 			$obj->SubsiteID = $parentObject->SubsiteID;
 		}
 		
-		if ($obj->hasExtension('Versioned') && $parentObject->Status == 'Published') {
-			$obj->doPublish();
-		}
-
 		$obj->write();
+		
+		if ($obj->hasExtension('Versioned') && $parentObject->isPublished()) {
+			$obj->publish('Stage', 'Live');
+		}
 
 		return $obj;
 	}

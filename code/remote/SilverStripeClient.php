@@ -46,16 +46,19 @@ class SilverStripeClient {
 	public static $methods = array(
 		'getNode'			=> array(
 			'url'				=> '/api/v1/{ClassName}/{ID}',
-			'return'			=> 'dataobject'
+			'return'			=> 'dataobject',
+			'cache'				=> 120
 		),
 		'getChildren'		=> array(
 			'url'				=> '/api/v1/{ClassName}',
 			'params'			=> array('ParentID'),
-			'return'			=> 'arraylist'
+			'return'			=> 'arraylist',
+			'cache'				=> 120
 		),
 		'getRelatedItems'	=> array(
 			'url'				=> '/api/v1/{ClassName}/{ID}/{Relation}',
-			'return'			=> 'arraylist'
+			'return'			=> 'arraylist',
+			'cache'				=> 120
 		),
 		'saveObject'		=> array(
 			'url'				=> '/api/v1/{ClassName}/{ID}',
