@@ -27,7 +27,7 @@ class SilverStripeContentItem extends ExternalContentItem {
 				// TODO : Update this to work with non-sitetree stuff too... 
 				$this->wrappedObject = $repo->getNode(array('ClassName' => $this->getType(), 'ID' => $id));
 			} catch (FailedRequestException $fre) {
-				singleton('ECUtils')->log("Failed loading node $this->externalId - " . $fre->getMessage(), SS_Log::ERR);
+				SS_Log::log($fre, SS_Log::WARN);
 			}
 		}
 
@@ -85,7 +85,6 @@ class SilverStripeContentItem extends ExternalContentItem {
 				}
 			}
 		} catch (Exception $fre) {
-			singleton('SiteUtils')->log("Failed to retrieve children: " . $fre->getMessage(), SS_Log::WARN);
 			SS_Log::log($fre, SS_Log::WARN);
 			return $children;
 		}
