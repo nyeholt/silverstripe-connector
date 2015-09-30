@@ -24,6 +24,8 @@ OF SUCH DAMAGE.
 class SilverStripeDataObjectImporter implements ExternalContentTransformer
 {
 	protected function importDataObject($item, $parentObject, $duplicateStrategy) {
+		Versioned::reading_stage('Stage');
+		
 		$ignore = array(
 			'ClassName' => true,
 			'Status' => true,
