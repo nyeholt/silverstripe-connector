@@ -1,14 +1,14 @@
 <?php
- 
-class SilverStripeContentImporter extends ExternalContentImporter
-{
+
+class SilverStripeContentImporter extends ExternalContentImporter {
+
 	/**
 	 * Override this to specify additional import handlers
 	 *
 	 * @var array
 	 */
-	public static $importer_classes = array();
-	
+	private static $importer_classes = array();
+
 	public function __construct() {
 		$this->init();
 	}
@@ -19,7 +19,7 @@ class SilverStripeContentImporter extends ExternalContentImporter
 		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();
 		$this->contentTransforms['EditableOption'] = new SilverStripeEditableOptionImporter();
 
-		foreach (self::$importer_classes as $type => $cls) {
+		foreach ($this->config()->importer_classes as $type => $cls) {
 			$this->contentTransforms[$type] = new $cls;
 		}
 	}
@@ -40,4 +40,5 @@ class SilverStripeContentImporter extends ExternalContentImporter
 		}
 		return 'DataObject';
 	}
+
 }
