@@ -24,6 +24,8 @@ class SilverStripeFileImporter implements ExternalContentTransformer {
 			$newFile = $existing;
 		}
 		$newFile->Name = $item->Name;
+		$newFile->RemoteNodeId = $item->getSS_ID();
+		$newFile->RemoteSystemId = $item->getSource()->ID;
 		$newFile->Title = $item->Title;
 		$newFile->ParentID = $parentId;
 		$newFile->write();
