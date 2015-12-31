@@ -6,9 +6,10 @@
  *
  * @author marcus
  */
-class ImportedDataExtension extends DataExtension {
-	private static $db = array(
-		'RemoteSystemId'		=> 'Varchar',
-		'RemoteNodeId'			=> 'Varchar',
-	);
+class ImportedDataExtension extends DataExtension
+{
+    private static $db = array(
+        'RemoteSystemId'        => 'Varchar',
+        'RemoteNodeId'            => 'Varchar',
+    );
 }
