@@ -21,20 +21,22 @@ OF SUCH DAMAGE.
  
 */
  
-class SilverStripeFormImporter extends SilverStripeDataObjectImporter {
+class SilverStripeFormImporter extends SilverStripeDataObjectImporter
+{
 
-	public function transform($item, $parentObject, $duplicateStrategy)	{
-		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+    public function transform($item, $parentObject, $duplicateStrategy)
+    {
+        $new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
 
-		// now lets load in all the actual EditableUserForm items
-		$client = $item->getSource()->getRemoteRepository();
-		$formFields = $client->getRelatedItems(array('ClassName' => get_class($new), 'ID' => $item->getSS_ID(), 'Relation' => 'Fields'));
-		$children = $item->stageChildren();
-		foreach ($formFields as $field) {
-			$fielditem = $item->getSource()->getObject($field);
-			$children->push($fielditem);
-		}
+        // now lets load in all the actual EditableUserForm items
+        $client = $item->getSource()->getRemoteRepository();
+        $formFields = $client->getRelatedItems(array('ClassName' => get_class($new), 'ID' => $item->getSS_ID(), 'Relation' => 'Fields'));
+        $children = $item->stageChildren();
+        foreach ($formFields as $field) {
+            $fielditem = $item->getSource()->getObject($field);
+            $children->push($fielditem);
+        }
 
-		return new TransformResult($new, $children);
-	}
+        return new TransformResult($new, $children);
+    }
 }

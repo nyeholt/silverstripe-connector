@@ -24,10 +24,11 @@ OF SUCH DAMAGE.
 /**
  * We need a custom importer to make sure that we don't import any children
  */
-class SilverStripeEditableOptionImporter extends SilverStripeDataObjectImporter {
-	public function transform($item, $parentObject, $duplicateStrategy) {
-		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
-		return new TransformResult($new, new ArrayList());
-	}
-	
+class SilverStripeEditableOptionImporter extends SilverStripeDataObjectImporter
+{
+    public function transform($item, $parentObject, $duplicateStrategy)
+    {
+        $new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+        return new TransformResult($new, new ArrayList());
+    }
 }

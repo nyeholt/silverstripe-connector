@@ -21,16 +21,16 @@ OF SUCH DAMAGE.
  
 */
  
-class ParentSearchable extends DataExtension {
-			
-	public function updateSearchableFields(&$fields)
-	{
-		if ($this->owner->hasDatabaseField('ParentID')) {
-			$fields['ParentID'] = array(
-				'filter' => 'ExactMatchFilter',
-				'title' => 'Parent ID'
-			);
-		}
-	}
+class ParentSearchable extends DataExtension
+{
+            
+    public function updateSearchableFields(&$fields)
+    {
+        if ($this->owner->hasDatabaseField('ParentID')) {
+            $fields['ParentID'] = array(
+                'filter' => 'ExactMatchFilter',
+                'title' => 'Parent ID'
+            );
+        }
+    }
 }
-

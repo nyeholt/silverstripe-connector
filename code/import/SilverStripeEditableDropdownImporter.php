@@ -21,22 +21,24 @@ OF SUCH DAMAGE.
  
 */
  
-class SilverStripeEditableDropdownImporter extends SilverStripeDataObjectImporter {
-	public function transform($item, $parentObject, $duplicateStrategy)	{
-		$new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
+class SilverStripeEditableDropdownImporter extends SilverStripeDataObjectImporter
+{
+    public function transform($item, $parentObject, $duplicateStrategy)
+    {
+        $new = $this->importDataObject($item, $parentObject, $duplicateStrategy);
 
-		// now lets load in all the actual EditableUserForm items
-		$client = $item->getSource()->getRemoteRepository();
-		$options = $client->getRelatedItems(array('ClassName' => 'EditableDropdown', 'ID' => $item->getSS_ID(), 'Relation' => 'Options'));
-		$children = new ArrayList();
+        // now lets load in all the actual EditableUserForm items
+        $client = $item->getSource()->getRemoteRepository();
+        $options = $client->getRelatedItems(array('ClassName' => 'EditableDropdown', 'ID' => $item->getSS_ID(), 'Relation' => 'Options'));
+        $children = new ArrayList();
 
-		foreach ($options as $option) {
-			$optionItem = $item->getSource()->getObject($option);
-			if ($optionItem->ParentID == $item->getSS_ID()) {
-				$children->push($optionItem);
-			}
-		}
+        foreach ($options as $option) {
+            $optionItem = $item->getSource()->getObject($option);
+            if ($optionItem->ParentID == $item->getSS_ID()) {
+                $children->push($optionItem);
+            }
+        }
 
-		return new TransformResult($new, $children);
-	}
+        return new TransformResult($new, $children);
+    }
 }
