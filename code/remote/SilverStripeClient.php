@@ -125,13 +125,14 @@ class DataObjectSetReturnHandler extends RemoteDataObjectHandler implements Retu
 		$objects = new ArrayList();
 		// lets get all the items beneath the root item
 		foreach ($xml->childNodes as $node) {
-			if ($node->nodeName == 'ArrayList') {
+			if ($node->nodeName == 'ArrayList' || $node->nodeName == 'DataObjectSet') {
 				foreach ($node->childNodes as $childNode) {
 					if ($childNode instanceof DOMText) {
 						continue;
 					}
 
-					$objects->push($this->getRemoteObject($childNode));
+					$remObj = $this->getRemoteObject($childNode);
+					$objects->push($remObj);
 				}
 			}
 		}
