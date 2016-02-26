@@ -26,6 +26,14 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 		$obj->Version = 1;
 		
 		if ($parentObject && $parentObject->hasExtension('Hierarchy')) {
+			if($cls == "SilverStripeContentItem" && $item->Title == "Files") {
+				$fakeId = '0-File';
+				$fakeFiles = new SilverStripeContentItem($item->source, $fakeId);
+				$fakeFiles->Title = 'Files';
+				$fakeFiles->ID = $item->ID . ExternalContent::ID_SEPARATOR . $fakeId;
+				return $fakeFiles;
+			}
+
 			$filter = '"Title" = \'' . Convert::raw2sql($item->Title) . '\' AND "ParentID" = ' . ((int) $parentObject->ID);
 			
 			$existing = DataObject::get_one($cls, $filter);
@@ -56,7 +64,7 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 		
 		$obj->write();
 		
-		if ($obj->hasExtension('Versioned') && $parentObject->isPublished()) {
+		if ($parentObject->ClassName != "Folder" && $obj->hasExtension('Versioned') && $parentObject->isPublished()) {
 			$obj->publish('Stage', 'Live');
 		}
 
