@@ -63,8 +63,16 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 		}
 		
 		$obj->write();
+
+		// Adds proper support for 2.4 so everything doesn't get published since
+		// the built in API will show unpublished pages. 3.x doesn't have this issue
+		$itemPublished = false;
+		if(isset($item->Status) && $item->Status == "Published") {
+			$itemPublished = true;
+		}
 		
-		if ($parentObject->ClassName != "Folder" && $obj->hasExtension('Versioned') && $parentObject->isPublished()) {
+		// Changed here for $itemPublished OR $parentObject->isPublished to account for the 2.4 issue
+		if ($parentObject->ClassName != "Folder" && $obj->hasExtension('Versioned') && ($itemPublished || $parentObject->isPublished())) {
 			$obj->publish('Stage', 'Live');
 		}
 
