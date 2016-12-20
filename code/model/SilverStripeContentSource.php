@@ -13,13 +13,16 @@
  */
 class SilverStripeContentSource extends ExternalContentSource implements ExternalContentRepositoryProvider {
 
-	public static $db = array(
+	private static $db = array(
 		'ApiUrl' => 'Varchar(64)',
 		'Username' => 'Varchar(64)',
 		'Password' => 'Varchar(64)',
 		'RootId' => 'Int',
 	);
-	public static $icon = array("silverstripe-connector/images/silverstripe", "folder");
+
+	private static $icon = array("silverstripe-connector/images/silverstripe", "folder");
+    
+    private static $class_item_map = [];
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
@@ -112,15 +115,22 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 			$type = $object->ClassName ? $object->ClassName : $type;
 		}
 
-		if ($id && !strpos($id, '-')) {
-			$id = "$id-$type";
+		if ($id) {
+            if (strpos($id, '-')) {
+                list($objId, $type) = explode('-', $id);
+            } else {
+                $id = "$id-$type";
+            }
 		}
 
 		if (!isset($this->objectCache[$id])) {
 			// get the object from the repository
 			try {
 				if ($id) {
-					$item = new SilverStripeContentItem($this, is_object($object) ? 0 : $id, is_object($object) ? $object : null);
+                    $mapping = $this->config()->class_item_map;
+                    $itemType = isset($mapping[$type]) ? $mapping[$type] : 'SilverStripeContentItem';
+                    
+					$item = $itemType::create($this, is_object($object) ? 0 : $id, is_object($object) ? $object : null);
 				} else {
 					// create a dummy dataobject representing the site root
 					$object = new SiteTree();
@@ -184,5 +194,3 @@ class SilverStripeContentSource extends ExternalContentSource implements Externa
 	}
 
 }
-
-?>
