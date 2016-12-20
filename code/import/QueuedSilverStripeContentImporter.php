@@ -14,6 +14,11 @@ class QueuedSilverStripeContentImporter extends QueuedExternalContentImporter
 		$this->contentTransforms['UserDefinedForm'] = new SilverStripeFormImporter();
 		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();
 		$this->contentTransforms['EditableOption'] = new SilverStripeEditableOptionImporter();
+        
+        $this->contentTransforms['CalendarEvent'] = new SilverStripeCalendarEventImporter();
+        $this->contentTransforms['CalendarDateTime'] = new SilverStripeCalendarDateTimeImporter();
+        
+        
 		$this->contentTransforms['File'] = new SilverStripeFileImporter();
 		$this->contentTransforms['Folder'] = new SilverStripeFolderImporter();
 		

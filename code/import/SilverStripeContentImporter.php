@@ -17,6 +17,10 @@ class SilverStripeContentImporter extends ExternalContentImporter {
 		$this->contentTransforms['DataObject'] = new SilverStripeDataObjectImporter();
 		$this->contentTransforms['UserDefinedForm'] = new SilverStripeFormImporter();
 		$this->contentTransforms['EditableDropdown'] = new SilverStripeEditableDropdownImporter();
+        
+        $this->contentTransforms['CalendarEvent'] = new SilverStripeCalendarEventImporter();
+        $this->contentTransforms['CalendarDateTime'] = new SilverStripeCalendarDateTimeImporter();
+        
 		$this->contentTransforms['EditableOption'] = new SilverStripeEditableOptionImporter();
 
 		foreach ($this->config()->importer_classes as $type => $cls) {

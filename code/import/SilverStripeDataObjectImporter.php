@@ -25,7 +25,7 @@ class SilverStripeDataObjectImporter implements ExternalContentTransformer
 
 		$obj->Version = 1;
 		
-		if ($parentObject && $parentObject->hasExtension('Hierarchy')) {
+		if ($parentObject && $parentObject->hasExtension('Hierarchy') && $obj->hasExtension('Hierarchy')) {
 			if($cls == "SilverStripeContentItem" && $item->Title == "Files") {
 				$fakeId = '0-File';
 				$fakeFiles = new SilverStripeContentItem($item->source, $fakeId);
